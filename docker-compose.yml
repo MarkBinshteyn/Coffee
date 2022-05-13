@@ -1,0 +1,36 @@
+
+version: '3.7'
+
+services:
+  redis:
+    image: "redis:alpine"
+    ports:
+      - '6379:6379'
+  angular-docker:
+    container_name: angular-docker-container
+    build: ./coffee-machine-front-end
+    ports:
+      - '4200:80'
+  mongodb:
+    image: mongo:5.0.2
+    container_name: db_mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodata:/data/db
+  nestapp:
+    depends_on:
+    - mongodb
+    - redis
+    links:
+      - mongodb
+    container_name: nestapp
+    image: nestapp:1.0.0
+    build: ./coffee-machine-back-end
+    environment:
+      WAIT_HOSTS: mongodb:27017
+    ports:
+      - "3000:3000"
+
+volumes:
+  mongodata: 
